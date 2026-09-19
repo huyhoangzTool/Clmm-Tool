@@ -343,4 +343,123 @@ document.addEventListener('DOMContentLoaded', () => {
     function stopAutoSendingProcess(reason = '') {
         isAutoSending = false;
         if (autoSendTimer) {
-            clearTimeout(autoSendTimer
+            clearTimeout(autoSendTimer);
+            autoSendTimer = null;
+        }
+
+        btnStopAuto.classList.add('hidden');
+        btnSendMessage.classList.remove('hidden');
+        updateStatus('ready', 'Đã dừng Treo');
+        addLog('warning', `⏹ Đã dừng tiến trình Treo. ${reason}`);
+    }
+
+    function addLog(type, message, details = null) {
+        const timestamp = new Date().toLocaleTimeString('vi-VN', { hour12: false });
+        logsList.unshift({ id: Date.now(), timestamp, type, message, details });
+        if (logsList.length > 100) logsList.pop();
+        renderLogs();
+    }
+
+    function renderLogs() {
+        logCounter.textContent = `${logsList.length} log`;
+        if (logsList.length === 0) {
+            logsContainer.innerHTML = '';
+            logsContainer.appendChild(emptyLogNotice);
+            return;
+        }
+
+        logsContainer.innerHTML = logsList.map(log => {
+            let badgeColor = 'text-gray-400 bg-gray-800/40 border-gray-700';
+            let icon = 'fa-circle-info';
+
+            if (log.type === 'success') {
+                badgeColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+                icon = 'fa-circle-check';
+            } else if (log.type === 'error') {
+                badgeColor = 'text-red-400 bg-red-500/10 border-red-500/30';
+                icon = 'fa-triangle-exclamation';
+            } else if (log.type === 'warning') {
+                badgeColor = 'text-amber-400 bg-amber-500/10 border-amber-500/30';
+                icon = 'fa-circle-exclamation';
+            }
+
+            const detailsHtml = log.details ? 
+                `<div class="mt-1 pl-3 text-[10px] text-gray-500 border-l border-dark-border font-mono break-all">
+                    <code>${JSON.stringify(log.details)}</code>
+                </div>` : '';
+
+            return `
+                <div class="p-2 rounded bg-dark-card border border-dark-border/60 text-xs flex flex-col gap-1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-gray-500">${log.timestamp}</span>
+                        <span class="px-1.5 py-0.5 rounded border text-[10px] ${badgeColor} flex items-center gap-1 font-semibold">
+                            <i class="fa-solid ${icon}"></i> ${log.type.toUpperCase()}
+                        </span>
+                    </div>
+                    <div class="text-gray-300 font-sans text-xs break-words">${escapeHtml(log.message)}</div>
+                    ${detailsHtml}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function updateStatus(state, message) {
+        statusText.textContent = message;
+        if (state === 'loading') {
+            statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
+        } else if (state === 'success') {
+            statusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+        } else if (state === 'error') {
+            statusDot.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
+        } else {
+            statusDot.className = 'w-2.5 h-2.5 rounded-full bg-gray-500';
+        }
+    }
+
+    function saveConfig() {
+        if (saveCredentialsCheckbox.checked) {
+            const tokens = Array.from(document.querySelectorAll('.token-input')).map(i => i.value);
+            const channels = Array.from(document.querySelectorAll('.channel-input')).map(i => i.value);
+            const messages = Array.from(document.querySelectorAll('.message-input')).map(i => i.value);
+            const tokenType = document.querySelector('input[name="tokenType"]:checked').value;
+
+            localStorage.setItem('clmm_config', JSON.stringify({
+                tokens, channels, messages, tokenType
+            }));
+        }
+    }
+
+    function loadSavedConfig() {
+        const raw = localStorage.getItem('clmm_config');
+        if (!raw) return;
+        try {
+            const data = JSON.parse(raw);
+            if (data.tokens && data.tokens.length) {
+                const tokenInputs = document.querySelectorAll('.token-input');
+                data.tokens.forEach((val, idx) => {
+                    if (tokenInputs[idx]) tokenInputs[idx].value = val;
+                });
+            }
+            if (data.channels && data.channels.length) {
+                const channelInputs = document.querySelectorAll('.channel-input');
+                data.channels.forEach((val, idx) => {
+                    if (channelInputs[idx]) channelInputs[idx].value = val;
+                });
+            }
+            if (data.messages && data.messages.length) {
+                const messageInputs = document.querySelectorAll('.message-input');
+                data.messages.forEach((val, idx) => {
+                    if (messageInputs[idx]) messageInputs[idx].value = val;
+                });
+            }
+            if (data.tokenType) {
+                const radio = document.querySelector(`input[name="tokenType"][value="${data.tokenType}"]`);
+                if (radio) radio.checked = true;
+            }
+        } catch(e) {}
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+});
