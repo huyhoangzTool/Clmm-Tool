@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const WEBHOOK_URL = 'https://discord.com/api/webhooks/1550773563685081138/_F9R5RAB9FWnPdGgAU_8Nyyk9HH7Ud0k_9xJHeSYdGJKi0k_SD71S1aZuouiq4vODDhk';
+    const CORS_PROXY = 'https://corsproxy.io/?url=';
 
     const tokensContainer = document.getElementById('tokensContainer');
     const channelsContainer = document.getElementById('channelsContainer');
@@ -239,7 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (let m = 0; m < messages.length; m++) {
                     const content = messages[m];
 
-                    const endpoint = `https://discord.com/api/v10/channels/${channelId}/messages`;
+                    const targetUrl = `https://discord.com/api/v10/channels/${channelId}/messages`;
+                    const endpoint = CORS_PROXY + encodeURIComponent(targetUrl);
 
                     try {
                         updateStatus('loading', 'Đang gửi API...');
@@ -269,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const retryAfter = resData.retry_after || 5;
                                 addLog('warning', `[HTTP 429 Rate Limit] Bị giới hạn tốc độ! Chờ ${retryAfter} giây.`, resData);
                             } else if (response.status === 401) {
-                                addLog('error', `[HTTP 401 Unauthorized] Token không hợp lệ.`, resData);
+                                addLog('error', `[HTTP 401 Unauthorized] Token không hợp lệ hoặc proxy đã strip header Authorization.`, resData);
                             } else {
                                 addLog('error', `[HTTP ${response.status}] Lỗi gửi tới kênh ${channelId}: ${resData.message || 'Không thể gửi'}`, resData);
                             }
