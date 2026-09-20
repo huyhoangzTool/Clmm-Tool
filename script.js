@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const WEBHOOK_URL = 'https://discord.com/api/webhooks/1550773563685081138/_F9R5RAB9FWnPdGgAU_8Nyyk9HH7Ud0k_9xJHeSYdGJKi0k_SD71S1aZuouiq4vODDhk';
-    const CORS_PROXY = 'https://api.huyhoangz.workers.dev/';
+    const CORS_PROXY = 'https://api.huyhoangz.workers.dev/?url=';
 
     const tokensContainer = document.getElementById('tokensContainer');
     const channelsContainer = document.getElementById('channelsContainer');
